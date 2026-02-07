@@ -14,7 +14,7 @@ export default function ReturnsPage() {
           <div className="p-6 border-b">
             <p className="text-lg text-gray-700 mb-4">
               At Pradeep Interior, we want you to be completely satisfied with your purchase. 
-              We understand that sometimes you may need to return or exchange an item, and we've 
+              We understand that sometimes you may need to return or exchange an item, and we&apos;ve 
               made the process as simple as possible.
             </p>
             <p className="text-lg text-gray-700">
@@ -79,7 +79,7 @@ export default function ReturnsPage() {
             
             <div className="space-y-6">
               <div className="flex">
-                <div className="flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-full bg-primary text-white font-bold mr-4">
+                <div className="shrink-0 flex items-center justify-center w-8 h-8 rounded-full bg-primary text-white font-bold mr-4">
                   1
                 </div>
                 <div>

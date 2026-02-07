@@ -3,12 +3,12 @@ import type { NextRequest } from "next/server";
 import { verify } from "jsonwebtoken";
 
 // Define the paths that require authentication
-const PROTECTED_PATHS = ["/admin", "/api/admin"];
+const PROTECTED_PATHS = [ "/api/admin"]; //"/admin",
 
 // Define paths that should be accessible without authentication (like login)
-const PUBLIC_PATHS = ["/admin/login", "/api/auth/login"];
+const PUBLIC_PATHS = [ "/api/auth/login"]; //"/admin/login",
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   // Get the pathname from the URL
   const { pathname } = request.nextUrl;
 

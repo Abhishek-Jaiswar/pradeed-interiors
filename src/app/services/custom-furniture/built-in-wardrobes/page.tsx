@@ -40,7 +40,7 @@ const wardrobeTypes = [
     },
     {
         name: 'Fitted Wardrobes',
-        description: 'Bespoke fitted wardrobes designed to perfectly integrate with your room's architecture, utilizing every inch of available space.',
+        description: 'Bespoke fitted wardrobes designed to perfectly integrate with your rooms architecture, utilizing every inch of available space.',
     features: [
             'Wall-to-wall and floor-to-ceiling designs',
             'Customized to work with sloped ceilings or awkward spaces',

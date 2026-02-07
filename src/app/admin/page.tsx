@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import LogoutButton from '@/components/admin/LogoutButton';
+import LogoutButton from '@/src/components/admin/LogoutButton';
 
 interface StatsItem {
     title: string;

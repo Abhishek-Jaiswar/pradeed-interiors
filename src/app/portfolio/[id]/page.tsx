@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
@@ -28,6 +29,8 @@ async function getProject(id: string) {
 }
 
 export default async function PortfolioProjectPage({ params }: { params: { id: string } }) {
+    console.log(params.id);
+    
     const project = await getProject(params.id);
 
     if (!project) {
@@ -47,7 +50,7 @@ export default async function PortfolioProjectPage({ params }: { params: { id: s
 
             <div className="bg-white rounded-xl overflow-hidden shadow-lg mb-12">
                 <div className="aspect-w-16 aspect-h-9 relative">
-                    <img
+                    <Image
                         src={project.images[0]}
                         alt={project.title}
                         className="w-full h-[500px] object-cover"
@@ -75,14 +78,14 @@ export default async function PortfolioProjectPage({ params }: { params: { id: s
                             <h2 className="text-2xl font-bold mb-6">Before & After</h2>
 
                             <div className="space-y-8">
-                                {project.beforeImages.map((beforeImg, index) => (
+                                {project.beforeImages.map((beforeImage, index) => (
                                     <div key={index} className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div className="relative">
                                             <div className="absolute top-4 left-4 z-10 bg-white text-gray-800 px-3 py-1 rounded-full text-sm shadow-md">
                                                 Before
                                             </div>
-                                            <img
-                                                src={beforeImg}
+                                            <Image
+                                                src={beforeImage}
                                                 alt={`${project.title} Before ${index + 1}`}
                                                 className="w-full h-64 object-cover rounded-lg"
                                             />
@@ -92,7 +95,7 @@ export default async function PortfolioProjectPage({ params }: { params: { id: s
                                             <div className="absolute top-4 left-4 z-10 bg-primary text-white px-3 py-1 rounded-full text-sm shadow-md">
                                                 After
                                             </div>
-                                            <img
+                                            <Image
                                                 src={index < project.afterImages.length ? project.afterImages[index] : project.afterImages[0]}
                                                 alt={`${project.title} After ${index + 1}`}
                                                 className="w-full h-64 object-cover rounded-lg"
@@ -111,7 +114,7 @@ export default async function PortfolioProjectPage({ params }: { params: { id: s
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {project.images.map((image, index) => (
                                 <div key={index} className="aspect-w-4 aspect-h-3 overflow-hidden rounded-lg">
-                                    <img
+                                    <Image
                                         src={image}
                                         alt={`${project.title} ${index + 1}`}
                                         className="w-full h-64 object-cover hover:scale-105 transition-transform duration-300"
