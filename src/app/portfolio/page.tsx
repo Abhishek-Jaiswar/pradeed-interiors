@@ -1,38 +1,31 @@
-import Link from "next/link";
+'use client';
+
+import Link from "next/image";
 import Image from "next/image";
+import { useProjects } from "@/hooks/query/usePortfolio";
 
-async function getPortfolioProjects() {
-  // Use mock API endpoint
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"}/api/portfolio/mock`,
-    {
-      cache: "no-store",
-    },
-  );
+export default function PortfolioPage() {
+  const { data, isLoading, error } = useProjects();
+  const portfolioProjects = data || [];
 
-  if (!response.ok) {
-    throw new Error("Failed to fetch portfolio projects");
+  if (isLoading) {
+    return (
+      <div className="container mx-auto px-4 mt-24 text-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary mx-auto mb-4"></div>
+        <p className="text-gray-600">Loading our portfolio...</p>
+      </div>
+    );
   }
 
-  const data = await response.json();
-  return data.data;
-}
-
-export default async function PortfolioPage() {
-  let portfolioData;
-  let error = null;
-
-  try {
-    portfolioData = await getPortfolioProjects();
-  } catch (err) {
-    error = "Failed to load portfolio projects. Please try again later.";
-    portfolioData = { portfolioProjects: [], pagination: { total: 0 } };
+  if (error) {
+    return (
+      <div className="container mx-auto px-4 mt-24">
+        <div className="bg-red-100 text-red-700 p-4 rounded mb-8">
+          Failed to load portfolio projects. Please try again later.
+        </div>
+      </div>
+    );
   }
-
-  const { portfolioProjects, pagination } = portfolioData || {
-    portfolioProjects: [],
-    pagination: { total: 0 },
-  };
 
   return (
     <div className="container mx-auto px-4 mt-24">
@@ -44,11 +37,7 @@ export default async function PortfolioPage() {
         </p>
       </div>
 
-      {error && (
-        <div className="bg-red-100 text-red-700 p-4 rounded mb-8">{error}</div>
-      )}
-
-      {/* Filters */}
+      {/* Filters (Logic can be added later as React Query params) */}
       <div className="mb-10">
         <div className="flex flex-wrap justify-center gap-4">
           <button className="px-4 py-2 bg-primary text-white rounded-full text-sm">
@@ -71,20 +60,26 @@ export default async function PortfolioPage() {
 
       {/* Project Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {portfolioProjects.map((project) => (
-          <Link
+        {portfolioProjects.map((project: any) => (
+          <a
             href={`/portfolio/${project.id}`}
             key={project.id}
             className="group block bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-shadow"
           >
             <div className="relative h-64 overflow-hidden">
-              <Image
-                src={project.images[0]}
-                alt={project.title}
-                width={300}
-                height={300}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-              />
+              {project.images && project.images.length > 0 ? (
+                <Image
+                  src={project.images[0]}
+                  alt={project.title}
+                  width={600}
+                  height={400}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                />
+              ) : (
+                <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-500">
+                  No image available
+                </div>
+              )}
               <div className="absolute inset-0 bg-black bg-opacity-20 group-hover:bg-opacity-10 transition-all"></div>
               <div className="absolute bottom-0 left-0 bg-primary text-white px-3 py-1 text-sm">
                 {project.category}
@@ -112,11 +107,11 @@ export default async function PortfolioPage() {
                 </div>
               )}
             </div>
-          </Link>
+          </a>
         ))}
       </div>
 
-      {portfolioProjects.length === 0 && !error && (
+      {portfolioProjects.length === 0 && (
         <div className="text-center py-16">
           <p className="text-gray-500">No portfolio projects found</p>
         </div>
@@ -137,25 +132,33 @@ export default async function PortfolioPage() {
                     <div className="absolute top-4 left-4 z-10 bg-white text-primary px-3 py-1 rounded-full text-sm font-semibold">
                       Before
                     </div>
-                    <Image
-                      src={portfolioProjects[0].beforeImages[0]}
-                      alt="Before"
-                      width={300}
-                      height={300}
-                      className="w-full h-full object-cover"
-                    />
+                    {portfolioProjects[0].beforeImages?.[0] ? (
+                      <Image
+                        src={portfolioProjects[0].beforeImages[0]}
+                        alt="Before"
+                        width={600}
+                        height={400}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gray-200" />
+                    )}
                   </div>
                   <div className="relative">
                     <div className="absolute top-4 left-4 z-10 bg-primary text-white px-3 py-1 rounded-full text-sm font-semibold">
                       After
                     </div>
-                    <Image
-                      src={portfolioProjects[0].afterImages[0]}
-                      alt="After"
-                      width={300}
-                      height={300}
-                      className="w-full h-full object-cover"
-                    />
+                    {portfolioProjects[0].afterImages?.[0] ? (
+                      <Image
+                        src={portfolioProjects[0].afterImages[0]}
+                        alt="After"
+                        width={600}
+                        height={400}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gray-200" />
+                    )}
                   </div>
                 </div>
               </div>
@@ -171,7 +174,7 @@ export default async function PortfolioPage() {
                 <div className="mb-6">
                   <h4 className="font-semibold mb-2">Project Details</h4>
                   <div className="flex flex-wrap gap-2">
-                    {portfolioProjects[0].tags.map((tag: string) => (
+                    {portfolioProjects[0].tags?.map((tag: string) => (
                       <span
                         key={tag}
                         className="bg-gray-100 px-3 py-1 rounded-full text-xs"
@@ -195,12 +198,12 @@ export default async function PortfolioPage() {
                   </div>
                 )}
 
-                <Link
+                <a
                   href={`/portfolio/${portfolioProjects[0].id}`}
                   className="mt-8 inline-block bg-primary text-white px-6 py-3 rounded-lg hover:bg-accent transition-colors"
                 >
                   View Project Details
-                </Link>
+                </a>
               </div>
             </div>
           </div>

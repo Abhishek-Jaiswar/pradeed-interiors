@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useCalculateBudget } from '@/hooks/query/useCalculator';
 
 // Room types
 const roomTypes = [
@@ -31,7 +32,7 @@ const materialOptions = [
 ];
 
 // Furniture options by room type
-const furnitureByRoomType = {
+const furnitureByRoomType: any = {
     'LIVING_ROOM': [
         { id: 'SOFA', name: 'Sofa', price: 1200 },
         { id: 'COFFEE_TABLE', name: 'Coffee Table', price: 400 },
@@ -78,16 +79,13 @@ export default function BudgetCalculator() {
     // Form state
     const [dimensions, setDimensions] = useState({ length: 10, width: 10 });
     const [roomType, setRoomType] = useState('LIVING_ROOM');
-    const [selectedMaterials, setSelectedMaterials] = useState([]);
-    const [selectedFurniture, setSelectedFurniture] = useState([]);
+    const [selectedMaterials, setSelectedMaterials] = useState<any[]>([]);
+    const [selectedFurniture, setSelectedFurniture] = useState<any[]>([]);
 
-    // Result state
-    const [isCalculating, setIsCalculating] = useState(false);
-    const [result, setResult] = useState(null);
-    const [error, setError] = useState(null);
+    const calculateMutation = useCalculateBudget();
 
     // Handle dimension change
-    const handleDimensionChange = (e) => {
+    const handleDimensionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setDimensions({
             ...dimensions,
@@ -96,55 +94,43 @@ export default function BudgetCalculator() {
     };
 
     // Handle room type change
-    const handleRoomTypeChange = (e) => {
+    const handleRoomTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         setRoomType(e.target.value);
         setSelectedFurniture([]);
     };
 
-    // Handle material selection
-    const handleMaterialToggle = (materialId) => {
+    // ... (rest of selection handlers remain same) ...
+    const handleMaterialToggle = (materialId: string) => {
         const existingIndex = selectedMaterials.findIndex(m => m.type === materialId);
-
         if (existingIndex >= 0) {
-            // Remove if already selected
             setSelectedMaterials(selectedMaterials.filter(m => m.type !== materialId));
         } else {
-            // Add with default coverage
-            const material = materialOptions.find(m => m.id === materialId);
+            const material: any = materialOptions.find(m => m.id === materialId);
             const category = material.category;
-
-            // Check if we already have a material of this category
             const existingCategoryMaterial = selectedMaterials.find(m => {
-                const mat = materialOptions.find(opt => opt.id === m.type);
+                const mat: any = materialOptions.find(opt => opt.id === m.type);
                 return mat && mat.category === category;
             });
-
-            // If we have a material of the same category, replace it
             if (existingCategoryMaterial && ['WALL', 'FLOOR', 'CEILING'].includes(category)) {
                 setSelectedMaterials([
                     ...selectedMaterials.filter(m => {
-                        const mat = materialOptions.find(opt => opt.id === m.type);
+                        const mat: any = materialOptions.find(opt => opt.id === m.type);
                         return mat && mat.category !== category;
                     }),
                     { type: materialId, coverage: 1 }
                 ]);
             } else {
-                // Otherwise just add it
                 setSelectedMaterials([...selectedMaterials, { type: materialId, coverage: 1 }]);
             }
         }
     };
 
-    // Handle furniture selection
-    const handleFurnitureToggle = (furnitureId) => {
+    const handleFurnitureToggle = (furnitureId: string) => {
         const existingIndex = selectedFurniture.findIndex(f => f.type === furnitureId);
-
         if (existingIndex >= 0) {
-            // Remove if already selected
             setSelectedFurniture(selectedFurniture.filter(f => f.type !== furnitureId));
         } else {
-            // Add with quantity of 1
-            const furniture = furnitureByRoomType[roomType].find(f => f.id === furnitureId);
+            const furniture = furnitureByRoomType[roomType].find((f: any) => f.id === furnitureId);
             setSelectedFurniture([...selectedFurniture, {
                 type: furnitureId,
                 quantity: 1,
@@ -153,142 +139,78 @@ export default function BudgetCalculator() {
         }
     };
 
-    // Handle furniture quantity change
-    const handleFurnitureQuantityChange = (furnitureId, quantity) => {
+    const handleFurnitureQuantityChange = (furnitureId: string, quantity: string) => {
         const updatedFurniture = selectedFurniture.map(item => {
             if (item.type === furnitureId) {
                 return { ...item, quantity: parseInt(quantity) || 1 };
             }
             return item;
         });
-
         setSelectedFurniture(updatedFurniture);
     };
 
     // Calculate budget
-    const calculateBudget = async () => {
-        setIsCalculating(true);
-        setError(null);
-
-        try {
-            const response = await fetch('/api/calculator/mock', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    dimensions,
-                    roomType,
-                    materials: selectedMaterials,
-                    furniture: selectedFurniture
-                }),
-            });
-
-            const data = await response.json();
-
-            if (!data.success) {
-                throw new Error(data.error || 'Failed to calculate budget');
-            }
-
-            setResult(data.data);
-        } catch (err) {
-            console.error('Error calculating budget:', err);
-            setError(err.message || 'An error occurred while calculating the budget');
-        } finally {
-            setIsCalculating(false);
-        }
+    const handleCalculate = async () => {
+        calculateMutation.mutate({
+            dimensions,
+            roomType,
+            materials: selectedMaterials,
+            furniture: selectedFurniture
+        });
     };
 
+    const result = calculateMutation.data;
+
     return (
-        <div className="container mx-auto px-4 py-8">
+        <div className="container mx-auto px-4 py-8 mt-16">
             <div className="text-center mb-12">
                 <h1 className="text-4xl font-bold mb-4">Budget Calculator</h1>
                 <p className="text-gray-600 max-w-2xl mx-auto">
-                    Use our interactive calculator to estimate the cost of your interior design project. Add room dimensions, select materials, and furniture to get an instant budget estimate.
+                    Use our interactive calculator to estimate the cost of your interior design project.
                 </p>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <div className="lg:col-span-2 space-y-8">
-                    {/* Room Dimensions */}
-                    <div className="bg-white p-6 rounded-xl shadow-md">
+                    {/* Room Information */}
+                    <div className="bg-white p-6 rounded-xl shadow-md border border-gray-100">
                         <h2 className="text-xl font-bold mb-4">Room Information</h2>
-
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <label className="block text-gray-700 mb-2">Room Type</label>
-                                <select
-                                    className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                                    value={roomType}
-                                    onChange={handleRoomTypeChange}
-                                >
-                                    {roomTypes.map(type => (
-                                        <option key={type.id} value={type.id}>{type.name}</option>
-                                    ))}
+                                <select className="w-full px-4 py-2 border rounded-lg" value={roomType} onChange={handleRoomTypeChange}>
+                                    {roomTypes.map(type => <option key={type.id} value={type.id}>{type.name}</option>)}
                                 </select>
                             </div>
-
                             <div className="md:col-span-2 grid grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-gray-700 mb-2">Length (ft)</label>
-                                    <input
-                                        type="number"
-                                        name="length"
-                                        min="1"
-                                        value={dimensions.length}
-                                        onChange={handleDimensionChange}
-                                        className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                                    />
+                                    <input type="number" name="length" min="1" value={dimensions.length} onChange={handleDimensionChange} className="w-full px-4 py-2 border rounded-lg" />
                                 </div>
                                 <div>
                                     <label className="block text-gray-700 mb-2">Width (ft)</label>
-                                    <input
-                                        type="number"
-                                        name="width"
-                                        min="1"
-                                        value={dimensions.width}
-                                        onChange={handleDimensionChange}
-                                        className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                                    />
+                                    <input type="number" name="width" min="1" value={dimensions.width} onChange={handleDimensionChange} className="w-full px-4 py-2 border rounded-lg" />
                                 </div>
-                            </div>
-
-                            <div className="md:col-span-2">
-                                <p className="text-gray-600">
-                                    Room Area: <span className="font-semibold">{dimensions.length * dimensions.width} sq ft</span>
-                                </p>
                             </div>
                         </div>
                     </div>
 
                     {/* Materials Selection */}
-                    <div className="bg-white p-6 rounded-xl shadow-md">
+                    <div className="bg-white p-6 rounded-xl shadow-md border border-gray-100">
                         <h2 className="text-xl font-bold mb-4">Materials</h2>
-
                         <div className="space-y-6">
                             {['WALL', 'FLOOR', 'CEILING', 'FIXTURE'].map(category => {
                                 const materialsInCategory = materialOptions.filter(m => m.category === category);
                                 return (
                                     <div key={category} className="space-y-2">
-                                        <h3 className="font-semibold">{category.charAt(0) + category.slice(1).toLowerCase()} Materials</h3>
-
+                                        <h3 className="font-semibold text-gray-600">{category.charAt(0) + category.slice(1).toLowerCase()} Materials</h3>
                                         <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                                             {materialsInCategory.map(material => {
                                                 const isSelected = selectedMaterials.some(m => m.type === material.id);
                                                 return (
-                                                    <div
-                                                        key={material.id}
-                                                        onClick={() => handleMaterialToggle(material.id)}
-                                                        className={`p-3 border rounded-lg cursor-pointer flex items-center transition-colors ${isSelected ? 'bg-primary text-white border-primary' : 'hover:bg-gray-50'
-                                                            }`}
-                                                    >
-                                                        <div className={`w-4 h-4 mr-2 rounded-full border ${isSelected ? 'border-white bg-white' : 'border-gray-400'}`}>
-                                                            {isSelected && (
-                                                                <div className="w-full h-full rounded-full bg-primary border-2 border-white"></div>
-                                                            )}
-                                                        </div>
+                                                    <div key={material.id} onClick={() => handleMaterialToggle(material.id)} className={`p-3 border rounded-lg cursor-pointer flex items-center transition-colors ${isSelected ? 'bg-primary text-white border-primary shadow-sm' : 'hover:bg-gray-50'}`}>
                                                         <div className="flex-1">
-                                                            <span className="block text-sm">{material.name}</span>
+                                                            <span className="block text-sm font-medium">{material.name}</span>
                                                             <span className="block text-xs opacity-80">${material.price}/sq ft</span>
                                                         </div>
                                                     </div>
@@ -302,42 +224,27 @@ export default function BudgetCalculator() {
                     </div>
 
                     {/* Furniture Selection */}
-                    <div className="bg-white p-6 rounded-xl shadow-md">
+                    <div className="bg-white p-6 rounded-xl shadow-md border border-gray-100">
                         <h2 className="text-xl font-bold mb-4">Furniture</h2>
-
-                        <div className="space-y-4">
-                            {(furnitureByRoomType[roomType] || []).map(furniture => {
+                        <div className="space-y-2">
+                            {(furnitureByRoomType[roomType] || []).map((furniture: any) => {
                                 const selectedFurnitureItem = selectedFurniture.find(f => f.type === furniture.id);
                                 const isSelected = !!selectedFurnitureItem;
-
                                 return (
-                                    <div key={furniture.id} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
+                                    <div key={furniture.id} className={`border rounded-lg p-4 transition-colors ${isSelected ? 'border-primary bg-primary/5' : 'hover:bg-gray-50'}`}>
                                         <div className="flex items-center justify-between">
                                             <div className="flex items-center">
-                                                <input
-                                                    type="checkbox"
-                                                    id={`furniture-${furniture.id}`}
-                                                    checked={isSelected}
-                                                    onChange={() => handleFurnitureToggle(furniture.id)}
-                                                    className="w-4 h-4 text-primary focus:ring-primary"
-                                                />
-                                                <label htmlFor={`furniture-${furniture.id}`} className="ml-2 cursor-pointer">
-                                                    <span className="font-medium">{furniture.name}</span>
+                                                <input type="checkbox" id={`furniture-${furniture.id}`} checked={isSelected} onChange={() => handleFurnitureToggle(furniture.id)} className="w-4 h-4 text-primary" />
+                                                <label htmlFor={`furniture-${furniture.id}`} className="ml-3 cursor-pointer">
+                                                    <span className="font-medium text-gray-800">{furniture.name}</span>
                                                     <span className="text-gray-500 ml-2">${furniture.price.toLocaleString()}</span>
                                                 </label>
                                             </div>
-
                                             {isSelected && (
                                                 <div className="flex items-center">
-                                                    <label className="text-sm mr-2">Quantity:</label>
-                                                    <select
-                                                        value={selectedFurnitureItem.quantity}
-                                                        onChange={(e) => handleFurnitureQuantityChange(furniture.id, e.target.value)}
-                                                        className="border rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
-                                                    >
-                                                        {[1, 2, 3, 4, 5, 6, 7, 8].map(num => (
-                                                            <option key={num} value={num}>{num}</option>
-                                                        ))}
+                                                    <label className="text-xs text-gray-500 mr-2 uppercase font-bold">Qty:</label>
+                                                    <select value={selectedFurnitureItem.quantity} onChange={(e) => handleFurnitureQuantityChange(furniture.id, e.target.value)} className="border rounded-md px-2 py-1 text-sm bg-white" >
+                                                        {[1, 2, 3, 4, 5, 6, 7, 8].map(num => <option key={num} value={num}>{num}</option>)}
                                                     </select>
                                                 </div>
                                             )}
@@ -348,107 +255,68 @@ export default function BudgetCalculator() {
                         </div>
                     </div>
 
-                    <div className="text-center">
-                        <button
-                            onClick={calculateBudget}
-                            disabled={isCalculating}
-                            className="bg-primary hover:bg-accent text-white py-3 px-8 rounded-lg font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            {isCalculating ? 'Calculating...' : 'Calculate Budget'}
+                    <div className="text-center pt-4">
+                        <button onClick={handleCalculate} disabled={calculateMutation.isPending} className="bg-primary hover:bg-accent text-white py-4 px-12 rounded-lg font-bold transition-all shadow-lg active:scale-95 disabled:opacity-50">
+                            {calculateMutation.isPending ? 'Calculating Estimate...' : 'Calculate Budget'}
                         </button>
                     </div>
                 </div>
 
                 <div className="lg:col-span-1">
-                    {/* Results Panel */}
-                    <div className="bg-white p-6 rounded-xl shadow-md sticky top-6">
-                        <h2 className="text-xl font-bold mb-4">Budget Estimate</h2>
+                    <div className="bg-white p-6 rounded-xl shadow-md border border-gray-100 sticky top-24">
+                        <h2 className="text-xl font-bold mb-6 pb-4 border-b">Budget Estimate</h2>
 
-                        {error && (
-                            <div className="bg-red-100 text-red-700 p-4 rounded-lg mb-4">
-                                {error}
+                        {calculateMutation.isError && (
+                            <div className="bg-red-50 text-red-700 p-4 rounded-lg mb-4 text-sm font-medium border border-red-100">
+                                {(calculateMutation.error as any)?.message || 'Calculation failed. Please try again.'}
                             </div>
                         )}
 
-                        {!result && !error && (
-                            <div className="text-center py-12 text-gray-500">
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 mx-auto mb-4 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                                </svg>
-                                <p>Please fill in the room details and click "Calculate Budget" to see your estimate.</p>
+                        {!result && !calculateMutation.isError && (
+                            <div className="text-center py-12 text-gray-400">
+                                <p>Fill details and click calculate to see estimate.</p>
                             </div>
                         )}
 
                         {result && (
-                            <div className="space-y-6">
-                                <div className="bg-gray-50 p-4 rounded-lg text-center">
-                                    <p className="text-gray-600">Estimated Total</p>
-                                    <h3 className="text-3xl font-bold text-primary">${Math.round(result.totalCost).toLocaleString()}</h3>
-                                    <p className="text-sm text-gray-500">For {result.area} sq ft {roomTypes.find(r => r.id === roomType)?.name}</p>
+                            <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
+                                <div className="bg-primary/5 p-6 rounded-2xl text-center border border-primary/10">
+                                    <p className="text-gray-600 text-sm font-medium mb-1">Estimated Total</p>
+                                    <h3 className="text-4xl font-black text-primary">${Math.round(result.totalCost).toLocaleString()}</h3>
+                                    <p className="text-xs text-gray-400 mt-2 uppercase tracking-wide">For {result.area} sq ft space</p>
                                 </div>
 
                                 <div className="space-y-4">
-                                    <h3 className="font-semibold">Cost Breakdown</h3>
-
-                                    <div className="space-y-2">
-                                        {Object.entries(result.breakdown).map(([key, value]) => {
-                                            const label = {
-                                                baseCost: 'Base Cost',
-                                                materialsCost: 'Materials',
-                                                furnitureCost: 'Furniture',
-                                                laborCost: 'Labor',
-                                                designFee: 'Design Fee'
-                                            }[key];
-
-                                            const percentage = Math.round((value / result.totalCost) * 100);
-
-                                            return (
-                                                <div key={key} className="flex items-center justify-between">
-                                                    <div className="flex-1">
-                                                        <div className="flex justify-between mb-1">
-                                                            <span>{label}</span>
-                                                            <span>${Math.round(value).toLocaleString()}</span>
-                                                        </div>
-                                                        <div className="w-full bg-gray-200 rounded-full h-2">
-                                                            <div
-                                                                className="bg-primary rounded-full h-2"
-                                                                style={{ width: `${percentage}%` }}
-                                                            ></div>
-                                                        </div>
-                                                    </div>
+                                    <h3 className="font-bold text-gray-800 text-sm uppercase tracking-wider">Breakdown</h3>
+                                    {Object.entries(result.breakdown).map(([key, value]: [any, any]) => {
+                                        const label = { baseCost: 'Design Base', materialsCost: 'Materials', furnitureCost: 'Furniture', laborCost: 'Labor', designFee: 'Design Fee' }[key];
+                                        return (
+                                            <div key={key} className="space-y-1">
+                                                <div className="flex justify-between text-sm">
+                                                    <span className="text-gray-600">{label}</span>
+                                                    <span className="font-bold text-gray-900">${Math.round(value).toLocaleString()}</span>
                                                 </div>
-                                            );
-                                        })}
-                                    </div>
+                                                <div className="w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
+                                                    <div className="bg-primary h-full rounded-full transition-all duration-1000" style={{ width: `${(value / result.totalCost) * 100}%` }}></div>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
                                 </div>
 
-                                <div className="border-t pt-4">
-                                    <h3 className="font-semibold mb-2">Time Estimate</h3>
-                                    <p className="text-gray-600">
-                                        {result.timeEstimate.min === result.timeEstimate.max ?
-                                            `Approximately ${result.timeEstimate.min} weeks` :
-                                            `${result.timeEstimate.min}-${result.timeEstimate.max} weeks`
-                                        }
+                                <div className="pt-6 border-t border-dashed">
+                                    <h3 className="font-bold text-gray-800 text-sm uppercase tracking-wider mb-2">Completion Time</h3>
+                                    <p className="text-2xl font-bold text-gray-900">
+                                        {result.timeEstimate.min === result.timeEstimate.max ? `${result.timeEstimate.min} Weeks` : `${result.timeEstimate.min}-${result.timeEstimate.max} Weeks`}
                                     </p>
                                 </div>
 
-                                <div className="pt-4">
-                                    <Link
-                                        href="/consultation"
-                                        className="block w-full bg-accent hover:bg-primary text-white text-center py-3 rounded-lg transition-colors font-semibold"
-                                    >
-                                        Book a Consultation
+                                <div className="space-y-3 pt-4">
+                                    <Link href="/consultation" className="block w-full bg-accent hover:bg-primary text-white text-center py-4 rounded-xl transition-all font-bold shadow-md">
+                                        Book Consultation
                                     </Link>
-
-                                    <button
-                                        onClick={() => {
-                                            const subject = `Interior Design Quote for ${roomTypes.find(r => r.id === roomType)?.name}`;
-                                            const body = `I'd like to discuss a project with an estimated budget of $${Math.round(result.totalCost).toLocaleString()} for my ${roomTypes.find(r => r.id === roomType)?.name} (${result.area} sq ft)`;
-                                            window.open(`mailto:info@pradeepinteriors.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`);
-                                        }}
-                                        className="block w-full mt-3 border border-primary text-primary hover:bg-primary hover:text-white text-center py-3 rounded-lg transition-colors font-semibold"
-                                    >
-                                        Email This Quote
+                                    <button onClick={() => window.print()} className="block w-full border border-gray-200 text-gray-600 hover:bg-gray-50 text-center py-3 rounded-xl transition-all text-sm font-medium">
+                                        Save as PDF
                                     </button>
                                 </div>
                             </div>
@@ -458,4 +326,4 @@ export default function BudgetCalculator() {
             </div>
         </div>
     );
-} 
+}

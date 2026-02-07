@@ -1,66 +1,12 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import Link from 'next/link';
 import LogoutButton from '@/src/components/admin/LogoutButton';
-
-interface StatsItem {
-    title: string;
-    value: string;
-    change: string;
-    changeType: string;
-}
-
-interface OrderItem {
-    id: string;
-    customer: string;
-    date: string;
-    amount: string;
-    status: string;
-}
-
-interface ProjectItem {
-    id: string;
-    title: string;
-    client: string;
-    progress: number;
-    status: string;
-}
-
-interface DashboardData {
-    stats: StatsItem[];
-    recentOrders: OrderItem[];
-    recentProjects: ProjectItem[];
-}
+import { useDashboard } from '@/hooks/query/useDashboard';
 
 export default function AdminDashboard() {
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState('');
-    const [dashboardData, setDashboardData] = useState<DashboardData>({
-        stats: [],
-        recentOrders: [],
-        recentProjects: []
-    });
-
-    useEffect(() => {
-        const fetchDashboardData = async () => {
-            try {
-                const response = await fetch('/api/admin/dashboard');
-                if (!response.ok) {
-                    throw new Error('Failed to fetch dashboard data');
-                }
-                const data = await response.json();
-                setDashboardData(data);
-            } catch (err) {
-                console.error('Error fetching dashboard data:', err);
-                setError('Failed to load dashboard data. Please try again later.');
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchDashboardData();
-    }, []);
+    const { data: dashboardData, isLoading, error } = useDashboard();
 
     // Helper function to determine the status badge color
     const getStatusColor = (status: string) => {
@@ -79,7 +25,7 @@ export default function AdminDashboard() {
         }
     };
 
-    if (loading) {
+    if (isLoading) {
         return (
             <div className="min-h-screen bg-gray-50 pt-16 flex items-center justify-center">
                 <div className="text-center">
@@ -98,7 +44,7 @@ export default function AdminDashboard() {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                     <h2 className="text-xl font-bold text-gray-800 mb-2">Error</h2>
-                    <p className="text-gray-600 mb-4">{error}</p>
+                    <p className="text-gray-600 mb-4">{error.message}</p>
                     <button
                         onClick={() => window.location.reload()}
                         className="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors"
@@ -130,7 +76,7 @@ export default function AdminDashboard() {
 
                 {/* Stats Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                    {dashboardData.stats.map((stat, index) => (
+                    {dashboardData?.stats?.map((stat: any, index: number) => (
                         <div key={index} className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
                             <h3 className="text-gray-500 text-sm font-medium mb-1">{stat.title}</h3>
                             <div className="flex items-baseline">
@@ -171,7 +117,7 @@ export default function AdminDashboard() {
                                     </tr>
                                 </thead>
                                 <tbody className="bg-white divide-y divide-gray-200">
-                                    {dashboardData.recentOrders.map((order) => (
+                                    {dashboardData?.recentOrders?.map((order: any) => (
                                         <tr key={order.id} className="hover:bg-gray-50">
                                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600">
                                                 <Link href={`/admin/orders/${order.id}`}>{order.id}</Link>
@@ -278,7 +224,7 @@ export default function AdminDashboard() {
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
-                                {dashboardData.recentProjects.map((project) => (
+                                {dashboardData?.recentProjects?.map((project: any) => (
                                     <tr key={project.id} className="hover:bg-gray-50">
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="flex items-center">
@@ -330,4 +276,4 @@ export default function AdminDashboard() {
             </div>
         </div>
     );
-} 
+}

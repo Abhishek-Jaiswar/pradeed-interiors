@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { useAuth } from '@/hooks/query/useAuth';
 
 export default function AdminLogin() {
     const router = useRouter();
@@ -11,58 +12,23 @@ export default function AdminLogin() {
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
-    const [loading, setLoading] = useState(false);
+
+    const { login, user, isLoadingUser } = useAuth();
 
     // Check if user is already logged in
     useEffect(() => {
-        // Here we'd normally check for authentication
-        // For this demo, we'll just check if we're already authenticated
-        const checkAuth = async () => {
-            try {
-                const response = await fetch('/api/admin/me');
-                if (response.ok) {
-                    // If already authenticated, redirect to dashboard
-                    router.replace('/admin');
-                }
-            } catch (err) {
-                // If error occurs during check, do nothing (stay on login page)
-                console.error("Auth check error:", err);
-            }
-        };
-
-        checkAuth();
-    }, [router]);
+        if (user && !isLoadingUser) {
+            router.replace('/admin');
+        }
+    }, [user, isLoadingUser, router]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setError('');
-        setLoading(true);
-
-        try {
-            const response = await fetch('/api/auth/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ email, password }),
-            });
-
-            const data = await response.json();
-
-            if (response.ok) {
-                // Successful login
+        login.mutate({ email, password }, {
+            onSuccess: () => {
                 router.push(callbackUrl);
-            } else {
-                // Failed login
-                setError(data.message || 'Login failed');
             }
-        } catch (err) {
-            console.error('Login error:', err);
-            setError('An unexpected error occurred. Please try again.');
-        } finally {
-            setLoading(false);
-        }
+        });
     };
 
     return (
@@ -77,9 +43,9 @@ export default function AdminLogin() {
                     </p>
                 </div>
 
-                {error && (
+                {login.isError && (
                     <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md text-sm">
-                        {error}
+                        {(login.error as any)?.message || 'Login failed. Please check your credentials.'}
                     </div>
                 )}
 
@@ -142,11 +108,11 @@ export default function AdminLogin() {
                     <div>
                         <button
                             type="submit"
-                            disabled={loading}
-                            className={`group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary ${loading ? 'opacity-70 cursor-not-allowed' : ''
+                            disabled={login.isPending || isLoadingUser}
+                            className={`group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary ${(login.isPending || isLoadingUser) ? 'opacity-70 cursor-not-allowed' : ''
                                 }`}
                         >
-                            {loading ? (
+                            {(login.isPending || isLoadingUser) ? (
                                 <span className="flex items-center">
                                     <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
@@ -175,4 +141,4 @@ export default function AdminLogin() {
             </div>
         </div>
     );
-} 
+}
