@@ -1,14 +1,5 @@
+import { contactFormSchema } from "@/src/lib/validations/contact";
 import { NextResponse } from "next/server";
-import { z } from "zod";
-
-// Define validation schema for contact form data
-const contactFormSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  email: z.string().email("Invalid email address"),
-  phone: z.string().optional(),
-  subject: z.string().optional(),
-  message: z.string().min(1, "Message is required"),
-});
 
 export async function POST(request: Request) {
   try {

@@ -5,14 +5,7 @@ import { successResponse, errorResponse, notFoundResponse, serverErrorResponse }
 import { requireAuth, requireRole } from '@/lib/auth';
 
 // Schema for updating a design idea
-const updateDesignIdeaSchema = z.object({
-  title: z.string().min(2, 'Title must be at least 2 characters').optional(),
-  description: z.string().min(10, 'Description must be at least 10 characters').optional(),
-  content: z.string().optional(),
-  image: z.string().url('Invalid image URL').optional(),
-  category: z.string().optional(),
-  tags: z.array(z.string()).optional(),
-});
+import { updateDesignIdeaSchema } from "@/lib/validations/design-idea";
 
 // GET - Get a design idea by ID
 export async function GET(

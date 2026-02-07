@@ -1,19 +1,10 @@
 import { NextRequest } from 'next/server';
-import { z } from 'zod';
-import prisma from '@/lib/prisma';
-import { successResponse, errorResponse, serverErrorResponse } from '@/lib/api-utils';
-import { requireAuth, requireRole, getSession } from '@/lib/auth';
+import prisma from '@/src/lib/prisma';
+import { successResponse, errorResponse, serverErrorResponse } from '@/src/lib/api-utils';
+import { requireAuth, getSession } from '@/src/lib/auth';
 
 // Schema for creating a new order
-const orderItemSchema = z.object({
-  productId: z.string(),
-  quantity: z.number().int().positive(),
-});
-
-const createOrderSchema = z.object({
-  items: z.array(orderItemSchema).min(1, 'Order must contain at least one item'),
-  addressId: z.string(),
-});
+import { createOrderSchema } from "@/src/lib/validations/order";
 
 // GET - Get all orders (admin) or user's orders
 export async function GET(req: NextRequest) {

@@ -1,22 +1,10 @@
 import { NextRequest } from 'next/server';
-import { z } from 'zod';
-import prisma from '@/lib/prisma';
-import { successResponse, errorResponse, serverErrorResponse } from '@/lib/api-utils';
-import { requireAuth, requireRole } from '@/lib/auth';
+import prisma from '@/src/lib/prisma';
+import { successResponse, errorResponse, serverErrorResponse } from '@/src/lib/api-utils';
+import { requireAuth, requireRole } from '@/src/lib/auth';
 
 // Schema for creating a new portfolio project
-const createPortfolioProjectSchema = z.object({
-  title: z.string().min(2, 'Title must be at least 2 characters'),
-  description: z.string().min(10, 'Description must be at least 10 characters'),
-  content: z.string(),
-  images: z.array(z.string().url('Invalid image URL')),
-  beforeImages: z.array(z.string().url('Invalid image URL')),
-  afterImages: z.array(z.string().url('Invalid image URL')),
-  category: z.string(),
-  tags: z.array(z.string()),
-  testimonial: z.string().optional(),
-  clientName: z.string().optional(),
-});
+import { createPortfolioProjectSchema } from "@/src/lib/validations/portfolio";
 
 // GET - Get all portfolio projects with optional filtering
 export async function GET(req: NextRequest) {

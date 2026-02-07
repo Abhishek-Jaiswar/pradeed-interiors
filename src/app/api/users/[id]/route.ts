@@ -5,14 +5,7 @@ import prisma from '@/lib/prisma';
 import { successResponse, errorResponse, notFoundResponse, serverErrorResponse } from '@/lib/api-utils';
 import { requireAuth, requireRole, getSession } from '@/lib/auth';
 
-// Schema for updating a user
-const updateUserSchema = z.object({
-  name: z.string().min(2, 'Name must be at least 2 characters').optional(),
-  email: z.string().email('Invalid email address').optional(),
-  password: z.string().min(8, 'Password must be at least 8 characters').optional(),
-  role: z.enum(['ADMIN', 'DESIGNER', 'CUSTOMER']).optional(),
-  image: z.string().url().optional().nullable(),
-});
+import { updateUserSchema } from "@/lib/validations/user";
 
 // GET - Get a user by ID
 export async function GET(

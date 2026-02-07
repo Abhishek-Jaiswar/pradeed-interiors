@@ -5,12 +5,7 @@ import { successResponse, errorResponse, serverErrorResponse } from '@/lib/api-u
 import { requireAuth, requireRole } from '@/lib/auth';
 
 // Schema for creating a new category
-const createCategorySchema = z.object({
-  name: z.string().min(2, 'Name must be at least 2 characters'),
-  description: z.string().optional(),
-  image: z.string().url('Invalid image URL').optional(),
-  parentId: z.string().optional(),
-});
+import { createCategorySchema } from "@/lib/validations/category";
 
 // GET - Get all categories
 export async function GET(req: NextRequest) {

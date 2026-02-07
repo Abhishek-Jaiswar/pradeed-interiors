@@ -5,12 +5,7 @@ import { successResponse, errorResponse, notFoundResponse, serverErrorResponse }
 import { requireAuth, requireRole } from '@/lib/auth';
 
 // Schema for updating a category
-const updateCategorySchema = z.object({
-  name: z.string().min(2, 'Name must be at least 2 characters').optional(),
-  description: z.string().optional().nullable(),
-  image: z.string().url('Invalid image URL').optional().nullable(),
-  parentId: z.string().optional().nullable(),
-});
+import { updateCategorySchema } from "@/lib/validations/category";
 
 // GET - Get a category by ID
 export async function GET(

@@ -5,14 +5,7 @@ import { successResponse, errorResponse, serverErrorResponse } from '@/lib/api-u
 import { requireAuth, requireRole } from '@/lib/auth';
 
 // Schema for creating a new design idea
-const createDesignIdeaSchema = z.object({
-  title: z.string().min(2, 'Title must be at least 2 characters'),
-  description: z.string().min(10, 'Description must be at least 10 characters'),
-  content: z.string(),
-  image: z.string().url('Invalid image URL'),
-  category: z.string(),
-  tags: z.array(z.string()),
-});
+import { createDesignIdeaSchema } from "@/lib/validations/design-idea";
 
 // GET - Get all design ideas with optional filtering
 export async function GET(req: NextRequest) {

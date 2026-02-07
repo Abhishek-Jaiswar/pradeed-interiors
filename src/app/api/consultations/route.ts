@@ -1,19 +1,10 @@
 import { NextRequest } from 'next/server';
-import { z } from 'zod';
-import prisma from '@/lib/prisma';
-import { successResponse, errorResponse, serverErrorResponse } from '@/lib/api-utils';
-import { requireAuth, requireRole, getSession } from '@/lib/auth';
+import prisma from '@/src/lib/prisma';
+import { successResponse, errorResponse, serverErrorResponse } from '@/src/lib/api-utils';
+import { requireAuth, getSession } from '@/src/lib/auth';
 
 // Schema for creating a new consultation
-const createConsultationSchema = z.object({
-  date: z.string().refine((val) => !isNaN(Date.parse(val)), {
-    message: 'Invalid date format',
-  }),
-  time: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Invalid time format (HH:MM)'),
-  type: z.enum(['VIRTUAL', 'IN_PERSON']),
-  requirements: z.string().optional(),
-  notes: z.string().optional(),
-});
+import { createConsultationSchema } from "@/src/lib/validations/consultation";
 
 // GET - Get all consultations (admin/designer) or user's consultations
 export async function GET(req: NextRequest) {

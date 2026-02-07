@@ -1,26 +1,10 @@
 import { NextRequest } from 'next/server';
-import { z } from 'zod';
-import prisma from '@/lib/prisma';
+import prisma from '@/src/lib/prisma';
 import { successResponse, errorResponse, notFoundResponse, serverErrorResponse } from '@/lib/api-utils';
-import { requireAuth, requireRole } from '@/lib/auth';
+import { requireRole } from '@/src/lib/auth';
 
 // Schema for updating a product
-const updateProductSchema = z.object({
-  name: z.string().min(2, 'Name must be at least 2 characters').optional(),
-  description: z.string().min(10, 'Description must be at least 10 characters').optional(),
-  price: z.number().positive('Price must be positive').optional(),
-  salePrice: z.number().positive('Sale price must be positive').optional().nullable(),
-  inStock: z.boolean().optional(),
-  images: z.array(z.string().url('Invalid image URL')).optional(),
-  dimensions: z.object({
-    length: z.number().positive(),
-    width: z.number().positive(),
-    height: z.number().positive(),
-  }).optional().nullable(),
-  materials: z.array(z.string()).optional(),
-  colors: z.array(z.string()).optional(),
-  categories: z.array(z.string()).optional(),
-});
+import { updateProductSchema } from "@/src/lib/validations/product";
 
 // GET - Get a product by ID
 export async function GET(

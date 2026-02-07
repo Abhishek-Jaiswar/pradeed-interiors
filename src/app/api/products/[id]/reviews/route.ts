@@ -1,14 +1,10 @@
 import { NextRequest } from 'next/server';
-import { z } from 'zod';
-import prisma from '@/lib/prisma';
-import { successResponse, errorResponse, notFoundResponse, serverErrorResponse } from '@/lib/api-utils';
-import { requireAuth, getSession } from '@/lib/auth';
+import prisma from '@/src/lib/prisma';
+import { successResponse, errorResponse, notFoundResponse, serverErrorResponse } from '@/src/lib/api-utils';
+import { requireAuth, getSession } from '@/src/lib/auth';
 
 // Schema for creating a new review
-const createReviewSchema = z.object({
-  rating: z.number().int().min(1).max(5),
-  comment: z.string().optional(),
-});
+import { createReviewSchema } from "@/src/lib/validations/review";
 
 // GET - Get all reviews for a product
 export async function GET(

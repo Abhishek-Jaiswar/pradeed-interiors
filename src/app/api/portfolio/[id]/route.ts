@@ -10,21 +10,7 @@ import {
 import { requireAuth, requireRole } from "../../../../lib/auth";
 
 // Schema for updating a portfolio project
-const updatePortfolioProjectSchema = z.object({
-  title: z.string().min(2, "Title must be at least 2 characters").optional(),
-  description: z
-    .string()
-    .min(10, "Description must be at least 10 characters")
-    .optional(),
-  content: z.string().optional(),
-  images: z.array(z.string().url("Invalid image URL")).optional(),
-  beforeImages: z.array(z.string().url("Invalid image URL")).optional(),
-  afterImages: z.array(z.string().url("Invalid image URL")).optional(),
-  category: z.string().optional(),
-  tags: z.array(z.string()).optional(),
-  testimonial: z.string().optional().nullable(),
-  clientName: z.string().optional().nullable(),
-});
+import { updatePortfolioProjectSchema } from "@/lib/validations/portfolio";
 
 // GET - Get a portfolio project by ID
 export async function GET(

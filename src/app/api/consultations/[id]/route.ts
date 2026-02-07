@@ -1,20 +1,8 @@
+import { errorResponse, notFoundResponse, serverErrorResponse, successResponse } from '@/src/lib/api-utils';
+import { getSession, requireAuth } from '@/src/lib/auth';
+import prisma from '@/src/lib/prisma';
+import { updateConsultationSchema } from '@/src/lib/validations/consultation';
 import { NextRequest } from 'next/server';
-import { z } from 'zod';
-import prisma from '@/lib/prisma';
-import { successResponse, errorResponse, notFoundResponse, serverErrorResponse } from '@/lib/api-utils';
-import { requireAuth, requireRole, getSession } from '@/lib/auth';
-
-// Schema for updating a consultation
-const updateConsultationSchema = z.object({
-  date: z.string().refine((val) => !isNaN(Date.parse(val)), {
-    message: 'Invalid date format',
-  }).optional(),
-  time: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Invalid time format (HH:MM)').optional(),
-  type: z.enum(['VIRTUAL', 'IN_PERSON']).optional(),
-  status: z.enum(['PENDING', 'CONFIRMED', 'COMPLETED', 'CANCELLED']).optional(),
-  requirements: z.string().optional().nullable(),
-  notes: z.string().optional().nullable(),
-});
 
 // GET - Get a consultation by ID
 export async function GET(

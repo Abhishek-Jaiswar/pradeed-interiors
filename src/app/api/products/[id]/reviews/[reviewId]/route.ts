@@ -1,19 +1,15 @@
 import { NextRequest } from "next/server";
-import { z } from "zod";
-import prisma from "@/lib/prisma";
+import prisma from "@/src/lib/prisma";
 import {
   successResponse,
   errorResponse,
   notFoundResponse,
   serverErrorResponse,
-} from "@/lib/api-utils";
-import { requireAuth, requireRole, getSession } from "@/lib/auth";
+} from "@/src/lib/api-utils";
+import { requireAuth, requireRole, getSession } from "@/src/lib/auth";
 
 // Schema for updating a review
-const updateReviewSchema = z.object({
-  rating: z.number().int().min(1).max(5).optional(),
-  comment: z.string().optional().nullable(),
-});
+import { updateReviewSchema } from "@/src/lib/validations/review";
 
 // GET - Get a specific review
 export async function GET(

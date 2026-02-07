@@ -1,28 +1,14 @@
-import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
+import { successResponse } from "@/src/lib/api-utils";
 
 export async function POST() {
-  try {
-    // Clear the auth token cookie
-    cookies().set({
-      name: "auth_token",
-      value: "",
-      httpOnly: true,
-      path: "/",
-      secure: process.env.NODE_ENV === "production",
-      maxAge: 0, // Expire immediately
-      sameSite: "lax",
-    });
+  const response = successResponse({ message: "Logged out successfully" });
 
-    return NextResponse.json({
-      success: true,
-      message: "Logged out successfully",
-    });
-  } catch (error) {
-    console.error("Logout error:", error);
-    return NextResponse.json(
-      { success: false, message: "An error occurred during logout" },
-      { status: 500 }
-    );
-  }
+  // Clear the auth_token cookie
+  response.cookies.set("auth_token", "", {
+    httpOnly: true,
+    expires: new Date(0),
+    path: "/",
+  });
+
+  return response;
 }

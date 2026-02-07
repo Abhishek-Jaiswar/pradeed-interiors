@@ -5,12 +5,7 @@ import { successResponse, errorResponse, notFoundResponse, serverErrorResponse }
 import { requireAuth, requireRole, getSession } from '@/lib/auth';
 
 // Schema for updating an order
-const updateOrderSchema = z.object({
-  status: z.enum(['PENDING', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED']).optional(),
-  paymentStatus: z.enum(['PENDING', 'COMPLETED', 'FAILED', 'REFUNDED']).optional(),
-  paymentId: z.string().optional(),
-  addressId: z.string().optional(),
-});
+import { updateOrderSchema } from "@/lib/validations/order";
 
 // GET - Get an order by ID
 export async function GET(

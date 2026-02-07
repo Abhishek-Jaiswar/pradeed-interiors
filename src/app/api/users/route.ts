@@ -1,17 +1,11 @@
 import { NextRequest } from 'next/server';
-import { z } from 'zod';
 import { hash } from 'bcryptjs';
-import prisma from '@/lib/prisma';
-import { successResponse, errorResponse, serverErrorResponse } from '@/lib/api-utils';
-import { requireAuth, requireRole } from '@/lib/auth';
+import prisma from '@/src/lib/prisma';
+import { successResponse, errorResponse, serverErrorResponse } from '@/src/lib/api-utils';
+import { requireRole } from '@/src/lib/auth';
 
 // Schema for creating a new user
-const createUserSchema = z.object({
-  name: z.string().min(2, 'Name must be at least 2 characters'),
-  email: z.string().email('Invalid email address'),
-  password: z.string().min(8, 'Password must be at least 8 characters'),
-  role: z.enum(['ADMIN', 'DESIGNER', 'CUSTOMER']).optional(),
-});
+import { createUserSchema } from "@/src/lib/validations/user";
 
 // GET - Get all users (admin only)
 export async function GET(req: NextRequest) {
