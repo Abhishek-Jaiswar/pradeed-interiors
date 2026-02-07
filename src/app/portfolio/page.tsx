@@ -1,12 +1,13 @@
 'use client';
 
-import Link from "next/image";
+import Link from "next/link";
 import Image from "next/image";
-import { useProjects } from "@/hooks/query/usePortfolio";
+import { useProjects } from "@/src/hooks/query/usePortfolio";
 
 export default function PortfolioPage() {
-  const { data, isLoading, error } = useProjects();
-  const portfolioProjects = data || [];
+  const { data: response, isLoading, error } = useProjects();
+  const portfolioProjects = response?.data?.projects || [];
+  const pagination = response?.data?.pagination;
 
   if (isLoading) {
     return (
@@ -61,7 +62,7 @@ export default function PortfolioPage() {
       {/* Project Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {portfolioProjects.map((project: any) => (
-          <a
+          <Link
             href={`/portfolio/${project.id}`}
             key={project.id}
             className="group block bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-shadow"
@@ -107,7 +108,7 @@ export default function PortfolioPage() {
                 </div>
               )}
             </div>
-          </a>
+          </Link>
         ))}
       </div>
 
@@ -118,7 +119,7 @@ export default function PortfolioPage() {
       )}
 
       {/* Featured Project Section */}
-      {portfolioProjects.length > 0 && (
+      {portfolioProjects.length > 0 && portfolioProjects[0] && (
         <div className="mt-20">
           <h2 className="text-3xl font-bold mb-8 text-center">
             Featured Transformation
@@ -198,12 +199,12 @@ export default function PortfolioPage() {
                   </div>
                 )}
 
-                <a
+                <Link
                   href={`/portfolio/${portfolioProjects[0].id}`}
                   className="mt-8 inline-block bg-primary text-white px-6 py-3 rounded-lg hover:bg-accent transition-colors"
                 >
                   View Project Details
-                </a>
+                </Link>
               </div>
             </div>
           </div>

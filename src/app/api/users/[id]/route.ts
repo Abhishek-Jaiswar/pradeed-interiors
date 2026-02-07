@@ -1,11 +1,11 @@
 import { NextRequest } from 'next/server';
 import { z } from 'zod';
 import { hash } from 'bcryptjs';
-import prisma from '@/lib/prisma';
-import { successResponse, errorResponse, notFoundResponse, serverErrorResponse } from '@/lib/api-utils';
-import { requireAuth, requireRole, getSession } from '@/lib/auth';
+import prisma from '@/src/lib/prisma';
+import { successResponse, errorResponse, notFoundResponse, serverErrorResponse } from '@/src/lib/api-utils';
+import { requireAuth, requireRole, getSession } from '@/src/lib/auth';
 
-import { updateUserSchema } from "@/lib/validations/user";
+import { updateUserSchema } from "@/src/lib/validations/user";
 
 // GET - Get a user by ID
 export async function GET(

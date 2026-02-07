@@ -1,8 +1,16 @@
-import { successResponse, serverErrorResponse } from "@/lib/api-utils";
-import prisma from "@/lib/prisma";
+import { successResponse, serverErrorResponse } from "@/src/lib/api-utils";
+import prisma from "@/src/lib/prisma";
+import { requireRole } from "@/src/lib/auth";
+import { NextRequest } from "next/server";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
+    // Check if user is admin
+    const authCheck = await requireRole(req, 'ADMIN');
+    if (!authCheck.authorized) {
+      return authCheck.response;
+    }
+
     // Fetch real stats from database
     const [totalOrders, totalRevenue, pendingOrders, completedProjects] = await Promise.all([
       prisma.order.count(),
@@ -55,7 +63,7 @@ export async function GET() {
         },
         {
           title: "Total Revenue",
-          value: `₹${(revenue._sum.totalAmount || 0).toLocaleString('en-IN')}`,
+          value: `₹${(totalRevenue?._sum?.totalAmount || 0).toLocaleString('en-IN')}`,
           change: "+0%",
           changeType: "positive",
         },

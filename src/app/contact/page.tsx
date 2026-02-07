@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useContact } from '@/hooks/query/useContact';
+import { useContact } from '@/src/hooks/query/useContact';
 
 export default function ContactPage() {
     const [formData, setFormData] = useState({

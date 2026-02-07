@@ -10,7 +10,7 @@ import {
 import { requireAuth, requireRole } from "../../../../lib/auth";
 
 // Schema for updating a portfolio project
-import { updatePortfolioProjectSchema } from "@/lib/validations/portfolio";
+import { updatePortfolioProjectSchema } from "@/src/lib/validations/portfolio";
 
 // GET - Get a portfolio project by ID
 export async function GET(

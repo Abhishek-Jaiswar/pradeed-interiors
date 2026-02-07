@@ -1,10 +1,10 @@
 import { NextRequest } from 'next/server';
 import { z } from 'zod';
-import prisma from '@/lib/prisma';
-import { successResponse, errorResponse, serverErrorResponse } from '@/lib/api-utils';
+import prisma from '@/src/lib/prisma';
+import { successResponse, errorResponse, serverErrorResponse } from '@/src/lib/api-utils';
 
 // Schema for budget calculation request
-import { calculatorRequestSchema } from "@/lib/validations/calculator";
+import { calculatorRequestSchema } from "@/src/lib/validations/calculator";
 
 // POST - Calculate budget based on inputs
 export async function POST(req: NextRequest) {

@@ -3,10 +3,11 @@
 import React from 'react';
 import Link from 'next/link';
 import LogoutButton from '@/src/components/admin/LogoutButton';
-import { useDashboard } from '@/hooks/query/useDashboard';
+import { useDashboard } from '@/src/hooks/query/useDashboard';
 
 export default function AdminDashboard() {
-    const { data: dashboardData, isLoading, error } = useDashboard();
+    const { data: response, isLoading, error } = useDashboard();
+    const dashboardData = response?.data;
 
     // Helper function to determine the status badge color
     const getStatusColor = (status: string) => {

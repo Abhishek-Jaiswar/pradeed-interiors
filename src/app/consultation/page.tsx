@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { useConsultationMutations } from '@/hooks/query/useConsultations';
+import { useConsultationMutations } from '@/src/hooks/query/useConsultations';
 
 // Available time slots
 const timeSlots = [

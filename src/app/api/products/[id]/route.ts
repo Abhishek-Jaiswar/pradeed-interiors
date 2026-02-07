@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
 import prisma from '@/src/lib/prisma';
-import { successResponse, errorResponse, notFoundResponse, serverErrorResponse } from '@/lib/api-utils';
+import { successResponse, errorResponse, notFoundResponse, serverErrorResponse } from '@/src/lib/api-utils';
 import { requireRole } from '@/src/lib/auth';
 
 // Schema for updating a product

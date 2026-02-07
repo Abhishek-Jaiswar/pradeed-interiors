@@ -1,11 +1,11 @@
 import { NextRequest } from 'next/server';
 import { z } from 'zod';
-import prisma from '@/lib/prisma';
-import { successResponse, errorResponse, notFoundResponse, serverErrorResponse } from '@/lib/api-utils';
-import { requireAuth, requireRole } from '@/lib/auth';
+import prisma from '@/src/lib/prisma';
+import { successResponse, errorResponse, notFoundResponse, serverErrorResponse } from '@/src/lib/api-utils';
+import { requireAuth, requireRole } from '@/src/lib/auth';
 
 // Schema for updating a design idea
-import { updateDesignIdeaSchema } from "@/lib/validations/design-idea";
+import { updateDesignIdeaSchema } from "@/src/lib/validations/design-idea";
 
 // GET - Get a design idea by ID
 export async function GET(

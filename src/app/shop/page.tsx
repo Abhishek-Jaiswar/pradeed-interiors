@@ -1,13 +1,12 @@
 'use client';
 
 import Link from 'next/link';
-import { useProducts } from '@/hooks/query/useProducts';
+import { useProducts } from '@/src/hooks/query/useProducts';
 
 export default function ShopPage() {
-    const { data, isLoading, error } = useProducts();
-
-    const products = data?.products || [];
-    const pagination = data?.pagination || { total: 0 };
+    const { data: response, isLoading, error } = useProducts();
+    const products = response?.data?.products || [];
+    const pagination = response?.data?.pagination || { total: 0 };
 
     if (isLoading) {
         return (

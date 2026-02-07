@@ -1,7 +1,7 @@
-import jwt from "jsonwebtoken";
+import * as jose from 'jose';
 
 const JWT_SECRET = process.env.JWT_SECRET || "fallback_secret_for_development_only";
-const TOKEN_EXPIRY = "30d";
+const secret = new TextEncoder().encode(JWT_SECRET);
 
 export interface TokenPayload {
   id: string;
@@ -13,17 +13,22 @@ export interface TokenPayload {
 /**
  * Signs a new JWT token with the provided user data.
  */
-export function signToken(payload: TokenPayload): string {
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: TOKEN_EXPIRY });
+export async function signToken(payload: any): Promise<string> {
+  return await new jose.SignJWT(payload)
+    .setProtectedHeader({ alg: 'HS256' })
+    .setIssuedAt()
+    .setExpirationTime('30d')
+    .sign(secret);
 }
 
 /**
  * Verifies a JWT token and returns the decoded payload.
  * Returns null if the token is invalid or expired.
  */
-export function verifyToken(token: string): TokenPayload | null {
+export async function verifyToken(token: string): Promise<TokenPayload | null> {
   try {
-    return jwt.verify(token, JWT_SECRET) as TokenPayload;
+    const { payload } = await jose.jwtVerify(token, secret);
+    return payload as unknown as TokenPayload;
   } catch (error) {
     return null;
   }

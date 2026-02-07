@@ -1,11 +1,11 @@
 import { NextRequest } from 'next/server';
 import { z } from 'zod';
-import prisma from '@/lib/prisma';
-import { successResponse, errorResponse, serverErrorResponse } from '@/lib/api-utils';
-import { requireAuth, requireRole } from '@/lib/auth';
+import prisma from '@/src/lib/prisma';
+import { successResponse, errorResponse, serverErrorResponse } from '@/src/lib/api-utils';
+import { requireAuth, requireRole } from '@/src/lib/auth';
 
 // Schema for creating a new category
-import { createCategorySchema } from "@/lib/validations/category";
+import { createCategorySchema } from "@/src/lib/validations/category";
 
 // GET - Get all categories
 export async function GET(req: NextRequest) {

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { useCalculateBudget } from '@/hooks/query/useCalculator';
+import { useCalculateBudget } from '@/src/hooks/query/useCalculator';
 
 // Room types
 const roomTypes = [

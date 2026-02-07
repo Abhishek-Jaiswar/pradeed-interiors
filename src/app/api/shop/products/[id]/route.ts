@@ -1,4 +1,4 @@
-import { successResponse, notFoundResponse, serverErrorResponse } from "@/lib/api-utils";
+import { successResponse, notFoundResponse, serverErrorResponse } from "@/src/lib/api-utils";
 import prisma from "@/src/lib/prisma";
 import { NextRequest } from "next/server";
 

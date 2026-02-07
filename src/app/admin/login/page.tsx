@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { useAuth } from '@/hooks/query/useAuth';
+import { useAuth } from '@/src/hooks/query/useAuth';
 
 export default function AdminLogin() {
     const router = useRouter();
